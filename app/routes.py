@@ -8,8 +8,7 @@ books_bp = Blueprint("books", __name__, url_prefix="/books")
 @books_bp.route("", methods=["POST"])
 def create_book():
     request_body = request.get_json()
-    new_book = Book(title=request_body['title'],
-            description=request_body['description'])
+    new_book = Book.from_dict(request_body)
 
     db.session.add(new_book)
     db.session.commit()
@@ -27,11 +26,8 @@ def get_all_books():
     
     books_response = []
     for book in books:
-        books_response.append({
-            "id": book.id,
-            "title": book.title,
-            "description": book.description
-    })
+        books_response.append(book.to_dict())
+
     return jsonify(books_response)
 
 
@@ -52,11 +48,7 @@ def validate_book(book_id):
 @books_bp.route("/<book_id>", methods=["GET"])
 def read_one_book(book_id):
     book = validate_book(book_id)
-    return {
-        "id": book.id,
-        "title": book.title,
-        "description": book.description
-    }
+    return book.to_dict()
 
 
 # updating a book
